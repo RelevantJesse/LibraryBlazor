@@ -5,7 +5,7 @@
 
 <h3>Books</h3>
 
-    <MudButton Class="btn btn-primary" OnClick="() => AddBook()">Add Book</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="() => AddBook()">Add Book</MudButton>
 
     <MudTable Items="@Books" 
             Hover="true" 
@@ -25,10 +25,10 @@
         <MudTd DataLabel="ISBN">@context.ISBN</MudTd>
         <MudTd DataLabel="Year">@context.Year</MudTd>
         <MudTd DataLabel="Author">@context.Author.FirstName @context.Author.LastName</MudTd>
-        <MudTd DataLabel="Genre">@context.Genre</MudTd>
+        <MudTd DataLabel="Genre">@(context.Genre.ToString())</MudTd>
         <MudTd>
-            <MudButton Class="btn btn-primary" OnClick="() => Edit(context.Id)">Edit</MudButton>
-            <MudButton Class="btn btn-danger" OnClick="() => Delete(context.Id)">Delete</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="() => Edit(context.Id)">Edit</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="ml-auto" OnClick="() => Delete(context.Id)">Delete</MudButton>
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -39,7 +39,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(2000);
         Books = (await client.GetFromJsonAsync<IEnumerable<Book>>("books")).ToList();
     }
 

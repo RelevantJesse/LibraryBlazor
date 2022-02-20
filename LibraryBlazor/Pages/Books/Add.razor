@@ -1,5 +1,8 @@
 ﻿@page "/books/add"
 
+@inject NavigationManager navManager
+@inject HttpClient client
+
 <h1>Add Book</h1>
 
 @if (newBook != null && newBook.Author != null)
@@ -29,7 +32,7 @@
             }
         </MudSelect>
         <div class="d-flex align-center justify-space-between mt-6">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto">Add Book</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="@(async () => await OnSubmit())" Class="ml-auto">Add Book</MudButton>
         </div>
     </MudForm>
 
@@ -85,34 +88,33 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(1000);
         newBook = new Book();
         newBook.Author = new Author();
-        //authors = (await client.GetFromJsonAsync<IEnumerable<Author>>("authors")).ToList();
-        //genres = Enum.GetValues(typeof(Genres)).Cast<Genres>().ToList();
+        authors = (await client.GetFromJsonAsync<IEnumerable<Author>>("authors")).ToList();
+        genres = Enum.GetValues(typeof(Genres)).Cast<Genres>().ToList();
     }
 
-    //private async Task OnSubmit()
-    //{
-    //    await addForm.Validate();
+    private async Task OnSubmit()
+    {
+        await addForm.Validate();
 
-    //    if (!addForm.IsValid)
-    //    {
-    //        return;
-    //    }
+        if (!addForm.IsValid)
+        {
+            return;
+        }
 
-    //    var response = await client.PostAsJsonAsync<Book>("books", newBook);
-    //    var success = await response.Content.ReadFromJsonAsync<bool>();
+        var response = await client.PostAsJsonAsync<Book>("books", newBook);
+        var success = await response.Content.ReadFromJsonAsync<bool>();
 
-    //    if (success)
-    //    {
-    //        navManager.NavigateTo("books");
-    //    }
-    //}
+        if (success)
+        {
+            navManager.NavigateTo("books");
+        }
+    }
 
     private void OnCancel()
     {
-        //navManager.NavigateTo("books");
+        navManager.NavigateTo("books");
     }
 
     private IEnumerable<string> ValidAuthor(int id)
