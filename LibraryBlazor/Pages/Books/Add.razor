@@ -1,127 +1,37 @@
 ﻿@page "/books/add"
-
-@inject NavigationManager navManager
-@inject HttpClient client
+@using Library.Common
 
 <h1>Add Book</h1>
 
 @if (newBook != null && newBook.Author != null)
 {
-
     <MudForm @ref="@addForm" @bind-IsValid="@success" Model="@newBook">
         <MudTextField T="string" @bind-Value="@newBook.Title" Label="Title" Required="true" RequiredError="Title is required!" />
         <MudTextField T="string" @bind-Value="@newBook.ISBN" Label="ISBN" Required="true" RequiredError="ISBN is required!" />
         <MudNumericField @bind-Value="@newBook.Year" Label="Year" Variant="Variant.Text" Required="true" Min="1900" Max="2022" RequiredError="Year is required!" />
         <MudSelect T="int" @bind-Value="@newBook.Author.Id" Label="Authors" AnchorOrigin="Origin.BottomCenter" Validation="@(new Func<int, IEnumerable<string>>(ValidAuthor))">
-            <MudSelectItem T=int Value="0">-- SELECT --</MudSelectItem>
+            <MudSelectItem T="int" Value="0">-- SELECT --</MudSelectItem>
             @if (authors != null)
             {
                 foreach (var author in authors)
                 {
-                    <MudSelectItem T=int Value="@author.Id">@author.FirstName</MudSelectItem>
+                    <MudSelectItem T="int" Value="@author.Id">@author.FirstName @author.LastName</MudSelectItem>
                 }
             }
         </MudSelect>
-        <MudSelect T="int" @bind-Value="@newBook.Genre" Label="Genres" AnchorOrigin="Origin.BottomCenter">
+        <MudSelect T="Genres" @bind-Value="@newBook.Genre" Label="Genres" AnchorOrigin="Origin.BottomCenter">
             @if (genres != null)
             {
                 @foreach (var genre in genres)
                 {
-                    <MudSelectItem T=int Value="@((int)genre)">@genre</MudSelectItem>
+                    <MudSelectItem T="Genres" Value="@genre">@genre</MudSelectItem>
                 }
             }
         </MudSelect>
-        <div class="d-flex align-center justify-space-between mt-6">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="@(async () => await OnSubmit())" Class="ml-auto">Add Book</MudButton>
+        <div class="d-flex mt-6">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="@(async () => await OnSubmit())">Add Book</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => OnCancel())" Class="ml-2">Cancel</MudButton>
         </div>
     </MudForm>
 
-}
-
-
-
-@*
-
-
-    <EditForm Model="@newBook" OnValidSubmit="@OnSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <InputText id="txtTitle" @bind-Value="newBook.Title" />
-    <InputText id="txtISBN" @bind-Value="newBook.ISBN" />
-    <InputNumber id="txtYear" @bind-Value="newBook.Year" />
-    <InputSelect id="ddlAuthor" @bind-Value="newBook.Author.Id">
-    @if (authors != null)
-    {
-    <option value="">-- Select Author --</option>
-    <option value="">-- 2 --</option>
-    foreach (var author in authors)
-    {
-    <option value="@author.Id">@author.FirstName</option>
-    }
-    }
-    </InputSelect>
-    <InputSelect id="ddlGenre" @bind-Value="newBook.Genre">
-    @if (genres != null)
-    {
-    foreach (var genre in genres)
-    {
-    <option value="@((int)genre)">@genre</option>
-    }
-    }
-    </InputSelect>
-
-    <div class="mb-3">
-    <button class="btn btn-primary" type="submit">Save</button>
-    <a class="btn btn-danger" @onclick="OnCancel">Cancel</a>
-    </div>
-
-    </EditForm>*@
-
-@code {
-    private Book newBook;
-    private IEnumerable<Author> authors;
-    private IEnumerable<Genres> genres;
-    private string selectedAuthorId;
-    private MudForm addForm;
-    private bool success;
-
-    protected override async Task OnInitializedAsync()
-    {
-        newBook = new Book();
-        newBook.Author = new Author();
-        authors = (await client.GetFromJsonAsync<IEnumerable<Author>>("authors")).ToList();
-        genres = Enum.GetValues(typeof(Genres)).Cast<Genres>().ToList();
-    }
-
-    private async Task OnSubmit()
-    {
-        await addForm.Validate();
-
-        if (!addForm.IsValid)
-        {
-            return;
-        }
-
-        var response = await client.PostAsJsonAsync<Book>("books", newBook);
-        var success = await response.Content.ReadFromJsonAsync<bool>();
-
-        if (success)
-        {
-            navManager.NavigateTo("books");
-        }
-    }
-
-    private void OnCancel()
-    {
-        navManager.NavigateTo("books");
-    }
-
-    private IEnumerable<string> ValidAuthor(int id)
-    {
-        if (id <= 0)
-        {
-            yield return "Select an author";
-        }
-    }
 }

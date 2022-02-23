@@ -1,0 +1,73 @@
+﻿@page "/members"
+
+@inject HttpClient client
+@inject NavigationManager NavManager
+
+<h3>Members</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-2" OnClick="() => AddMember()">Add Member</MudButton>
+    <MudTable Items="@Members"
+            Hover="true" 
+            Breakpoint="Breakpoint.Sm" 
+            Loading="@_loading" 
+            LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh>Is Active</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+        <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+        <MudTd DataLabel="Is Active"><MudCheckBox ReadOnly="true" @bind-Checked="@context.IsActive" Color="Color.Primary"></MudCheckBox></MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="() => Edit(context.Id)">Edit</MudButton>
+            @if (context.IsActive)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="ml-2" OnClick="() => Deactivate(context.Id)">Deactivate</MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Info" Class="ml-2" OnClick="() => Reactivate(context.Id)">Reactivate</MudButton>
+            }
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code {
+    private List<Member> Members;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Members = await client.GetFromJsonAsync<List<Member>>("Members");
+    }
+
+    private void AddMember()
+    {
+        NavManager.NavigateTo("members/add");
+    }
+
+    private void Edit(int id)
+    {
+        NavManager.NavigateTo($"members/edit/{id}");
+    }
+
+    private async Task Deactivate(int id)
+    {
+        var member = Members.FirstOrDefault(a => a.Id == id);
+        member.IsActive = false;
+        await client.PostAsJsonAsync("members", member);
+        StateHasChanged();
+    }
+
+    private async Task Reactivate(int id)
+    {
+        var member = Members.FirstOrDefault(a => a.Id == id);
+        member.IsActive = true;
+        await client.PostAsJsonAsync("members", member);
+        StateHasChanged();
+    }
+}

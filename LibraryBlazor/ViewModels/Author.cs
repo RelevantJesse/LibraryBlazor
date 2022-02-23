@@ -4,6 +4,11 @@ namespace LibraryBlazor.ViewModels;
 
 public class Author
 {
+    public Author()
+    {
+        IsActive = true;
+    }
+
     [Range(1, int.MaxValue)]
     public int Id { get; set; }
 
@@ -12,4 +17,5 @@ public class Author
 
     [Required, MaxLength(50)]
     public string LastName { get; set; }
+    public bool IsActive { get; set; }
 }

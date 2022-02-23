@@ -4,6 +4,10 @@ namespace LibraryBlazor.ViewModels
 {
     public class Member
     {
+        public Member()
+        {
+            IsActive = true;
+        }
         public int Id { get; set; }
 
         [Required, MaxLength(50)]
@@ -11,5 +15,6 @@ namespace LibraryBlazor.ViewModels
 
         [Required, MaxLength(50)]
         public string LastName { get; set; }
+        public bool IsActive { get; set; }
     }
 }

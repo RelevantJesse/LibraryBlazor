@@ -1,0 +1,16 @@
+﻿@page "/authors/edit/{id:int}"
+@using Library.Common
+
+<h1>Edit Author</h1>
+
+@if (existingAuthor != null)
+{
+    <MudForm @ref="@addForm" @bind-IsValid="@success" Model="@existingAuthor">
+        <MudTextField T="string" @bind-Value="@existingAuthor.FirstName" Label="First Name" Required="true" RequiredError="First Name is required!" />
+        <MudTextField T="string" @bind-Value="@existingAuthor.LastName" Label="Last Name" Required="true" RequiredError="Last Name is required!" />
+        <div class="d-flex mt-6">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" OnClick="@(async () => await OnSubmit())">Save</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => OnCancel())" Class="ml-2">Cancel</MudButton>
+        </div>
+    </MudForm>
+}

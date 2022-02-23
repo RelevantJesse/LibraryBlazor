@@ -1,0 +1,38 @@
+﻿@page "/books/edit/{id:int}"
+@using Library.Common
+
+<h1>Edit Book</h1>
+
+@if (existingBook != null && existingBook.Author != null)
+{
+
+    <MudForm @ref="@addForm" Model="@existingBook">
+        <MudTextField T="string" @bind-Value="@existingBook.Title" Label="Title" Required="true" RequiredError="Title is required!" />
+        <MudTextField T="string" @bind-Value="@existingBook.ISBN" Label="ISBN" Required="true" RequiredError="ISBN is required!" />
+        <MudNumericField @bind-Value="@existingBook.Year" Label="Year" Variant="Variant.Text" Required="true" Min="1900" Max="2022" RequiredError="Year is required!" />
+        <MudSelect T="int" @bind-Value="@existingBook.Author.Id" Label="Authors" AnchorOrigin="Origin.BottomCenter" Validation="@(new Func<int, IEnumerable<string>>(ValidAuthor))">
+            <MudSelectItem T="int" Value="0">-- SELECT --</MudSelectItem>
+            @if (authors != null)
+            {
+                foreach (var author in authors)
+                {
+                    <MudSelectItem T="int" Value="@author.Id">@author.FirstName @author.LastName</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        <MudSelect T="Genres" @bind-Value="@existingBook.Genre" Label="Genres" AnchorOrigin="Origin.BottomCenter">
+            @if (genres != null)
+            {
+                @foreach (var genre in genres)
+                {
+                    <MudSelectItem T="Genres" Value="@genre">@genre</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        <div class="d-flex mt-6">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await OnSubmit())">Save</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => OnCancel())" Class="ml-2">Cancel</MudButton>
+        </div>
+    </MudForm>
+
+}

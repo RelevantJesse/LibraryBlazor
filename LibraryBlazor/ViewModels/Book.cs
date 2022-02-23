@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Library.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace LibraryBlazor.ViewModels
 {
@@ -19,7 +20,7 @@ namespace LibraryBlazor.ViewModels
         public Author Author { get; set; }
 
         [Required]
-        public int Genre { get; set; }
+        public Genres Genre { get; set; }
 
         #nullable enable
         public Member? CheckedOutTo { get; set; }

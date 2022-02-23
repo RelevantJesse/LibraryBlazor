@@ -1,0 +1,73 @@
+﻿@page "/authors"
+
+@inject HttpClient client
+@inject NavigationManager NavManager
+
+<h3>Authors</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-2" OnClick="() => AddAuthor()">Add Author</MudButton>
+    <MudTable Items="@Authors"
+            Hover="true" 
+            Breakpoint="Breakpoint.Sm" 
+            Loading="@_loading" 
+            LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh>Is Active</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="First Name">@context.FirstName</MudTd>
+        <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+        <MudTd DataLabel="Is Active"><MudCheckBox ReadOnly="true" @bind-Checked="@context.IsActive" Color="Color.Primary"></MudCheckBox></MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="ml-auto" OnClick="() => Edit(context.Id)">Edit</MudButton>
+            @if (context.IsActive)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="ml-2" OnClick="() => Deactivate(context.Id)">Deactivate</MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Info" Class="ml-2" OnClick="() => Reactivate(context.Id)">Reactivate</MudButton>
+            }
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code {
+    private List<Author> Authors;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Authors = await client.GetFromJsonAsync<List<Author>>("Authors");
+    }
+
+    private void AddAuthor()
+    {
+        NavManager.NavigateTo("authors/add");
+    }
+
+    private void Edit(int id)
+    {
+        NavManager.NavigateTo($"authors/edit/{id}");
+    }
+
+    private async Task Deactivate(int id)
+    {
+        var author = Authors.FirstOrDefault(a => a.Id == id);
+        author.IsActive = false;
+        await client.PostAsJsonAsync("authors", author);
+        StateHasChanged();
+    }
+
+    private async Task Reactivate(int id)
+    {
+        var author = Authors.FirstOrDefault(a => a.Id == id);
+        author.IsActive = true;
+        await client.PostAsJsonAsync("authors", author);
+        StateHasChanged();
+    }
+}
