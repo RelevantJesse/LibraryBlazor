@@ -1,0 +1,34 @@
+﻿@page "/checkoutabook"
+@using Library.Common
+
+<h1>Check Out a Book</h1>
+
+@if (checkOut != null)
+{
+    <MudForm @ref="@checkOutForm" @bind-IsValid="@success" Model="@checkOut">
+        <MudSelect T="int" @bind-Value="@checkOut.Book.Id" Label="Books" AnchorOrigin="Origin.BottomCenter">
+            <MudSelectItem T="int" Value="0">-- SELECT --</MudSelectItem>
+            @if (books != null)
+            {
+                foreach (var book in books)
+                {
+                    <MudSelectItem T="int" Value="@book.Id">@book.Title</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        <MudSelect T="int" @bind-Value="@checkOut.Member.Id" Label="Members" AnchorOrigin="Origin.BottomCenter">
+            @if (members != null)
+            {
+                @foreach (var member in members)
+                {
+                    <MudSelectItem T="int" Value="@member.Id">@member.FirstName @member.LastName</MudSelectItem>
+                }
+            }
+        </MudSelect>
+        <div class="d-flex mt-6">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(async () => await OnSubmit())">Check Out Book</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => OnCancel())" Class="ml-2">Cancel</MudButton>
+        </div>
+    </MudForm>
+
+}

@@ -1,0 +1,60 @@
+﻿@page "/checkedoutbooks"
+@using System.Text.Json
+
+@inject HttpClient client
+
+<h3>Checked Out Books</h3>
+
+@if (CheckedOuts == null)
+{
+    <div class="d-flex justify-content-center">
+        <MudProgressCircular Color="Color.Info" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <MudTable Items="@CheckedOuts"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+            <MudTh>Book Title</MudTh>
+            <MudTh>Member Name</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Title">@context.Book.Title</MudTd>
+            <MudTd DataLabel="Member">@context.Member.FirstName @context.Member.LastName</MudTd>
+            <div class="d-flex mt-6">
+                <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="@(async () => await CheckIn(context.Book.Id))">Check In</MudButton>
+            </div>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    List<CheckedOut> CheckedOuts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CheckedOuts = await client.GetFromJsonAsync<List<CheckedOut>>("checkout");
+    }
+
+    private async Task CheckIn(int bookId)
+    {
+        var response = await client.PostAsJsonAsync("checkout/checkin", bookId);
+
+        bool success = await response.Content.ReadFromJsonAsync<bool>();
+
+        if (success)
+        {
+            var checkedOuts = CheckedOuts.Where(c => c.Book.Id == bookId).ToList();
+
+            for (int i = checkedOuts.Count - 1; i >= 0 ; i--)
+            {
+                CheckedOuts.Remove(checkedOuts[i]);
+            }
+
+            StateHasChanged();
+        }
+    }
+}
